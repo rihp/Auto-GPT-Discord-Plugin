@@ -247,7 +247,6 @@ class AutoGPTPluginTemplate(AbstractSingleton, metaclass=Singleton):
 import discord
 from discord.ext import commands
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
-from auto_gpt import AutoGPTPluginTemplate, Message
 
 class DiscordPlugin(AutoGPTPluginTemplate):
     def __init__(self, bot_token: str):
