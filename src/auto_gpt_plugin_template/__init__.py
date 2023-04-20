@@ -243,3 +243,51 @@ class AutoGPTPluginTemplate(AbstractSingleton, metaclass=Singleton):
             str: The resulting response.
         """
         pass
+
+import discord
+from discord.ext import commands
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
+from auto_gpt import AutoGPTPluginTemplate, Message
+
+class DiscordPlugin(AutoGPTPluginTemplate):
+    def __init__(self, bot_token: str):
+        super().__init__()
+        self._name = "Auto-GPT Discord Plugin"
+        self._version = "0.1.0"
+        self._description = "This plugin enables Auto-GPT to communicate over Discord"
+        self._bot_token = bot_token
+        self._bot = None
+        self._command_prefix = "!"
+
+    async def connect(self):
+        self._bot = commands.Bot(command_prefix=self._command_prefix)
+        await self._bot.login(self._bot_token)
+        await self._bot.connect()
+
+    async def on_response(self, response: str, *args, **kwargs) -> str:
+        if self._bot is not None:
+            channel_id = kwargs.get("channel_id")
+            if channel_id:
+                channel = self._bot.get_channel(channel_id)
+                if channel:
+                    await channel.send(response)
+        return response
+
+    def can_handle_pre_command(self) -> bool:
+        return True
+
+    def pre_command(
+        self, command_name: str, arguments: Dict[str, Any]
+    ) -> Tuple[str, Dict[str, Any]]:
+        if command_name == "hello":
+            return "say_hello", {}
+        return command_name, arguments
+
+    @commands.command()
+    async def say_hello(self, ctx):
+        await ctx.send("Hello, world!")
+
+    async def run(self):
+        await self.connect()
+        self._bot.add_command(self.say_hello)
+        await self._bot.wait_until_ready()
