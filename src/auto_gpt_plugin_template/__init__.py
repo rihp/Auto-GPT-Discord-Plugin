@@ -248,6 +248,8 @@ import discord
 from discord.ext import commands
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
 
+from discord.ext import commands
+
 class DiscordPlugin(AutoGPTPluginTemplate):
     def __init__(self, bot_token: str):
         super().__init__()
@@ -263,12 +265,15 @@ class DiscordPlugin(AutoGPTPluginTemplate):
         await self._bot.login(self._bot_token)
         await self._bot.connect()
 
+    def can_handle_on_response(self) -> bool:
+        return True
+
     async def on_response(self, response: str, *args, **kwargs) -> str:
         if self._bot is not None:
             channel_id = kwargs.get("channel_id")
-            if channel_id:
+            if channel_id is not None:
                 channel = self._bot.get_channel(channel_id)
-                if channel:
+                if channel is not None:
                     await channel.send(response)
         return response
 
@@ -285,6 +290,19 @@ class DiscordPlugin(AutoGPTPluginTemplate):
     @commands.command()
     async def say_hello(self, ctx):
         await ctx.send("Hello, world!")
+
+    def can_handle_chat_completion(
+        self, messages: Dict[Any, Any], model: str, temperature: float, max_tokens: int
+    ) -> bool:
+        return True
+
+    async def handle_chat_completion(
+        self, messages: List[Message], model: str, temperature: float, max_tokens: int
+    ) -> str:
+        # Here you can generate a prompt for the bot to respond to
+        # based on the messages, model, temperature, and max_tokens
+        prompt = "Hello, how can I assist you?"
+        return prompt
 
     async def run(self):
         await self.connect()
