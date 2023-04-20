@@ -244,11 +244,8 @@ class AutoGPTPluginTemplate(AbstractSingleton, metaclass=Singleton):
         """
         pass
 
-import discord
 from discord.ext import commands
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, TypedDict
-
-from discord.ext import commands
 
 class DiscordPlugin(AutoGPTPluginTemplate):
     def __init__(self, bot_token: str):
@@ -265,15 +262,12 @@ class DiscordPlugin(AutoGPTPluginTemplate):
         await self._bot.login(self._bot_token)
         await self._bot.connect()
 
-    def can_handle_on_response(self) -> bool:
-        return True
-
     async def on_response(self, response: str, *args, **kwargs) -> str:
         if self._bot is not None:
             channel_id = kwargs.get("channel_id")
-            if channel_id is not None:
+            if channel_id:
                 channel = self._bot.get_channel(channel_id)
-                if channel is not None:
+                if channel:
                     await channel.send(response)
         return response
 
@@ -291,20 +285,52 @@ class DiscordPlugin(AutoGPTPluginTemplate):
     async def say_hello(self, ctx):
         await ctx.send("Hello, world!")
 
-    def can_handle_chat_completion(
-        self, messages: Dict[Any, Any], model: str, temperature: float, max_tokens: int
-    ) -> bool:
-        return True
-
-    async def handle_chat_completion(
-        self, messages: List[Message], model: str, temperature: float, max_tokens: int
-    ) -> str:
-        # Here you can generate a prompt for the bot to respond to
-        # based on the messages, model, temperature, and max_tokens
-        prompt = "Hello, how can I assist you?"
-        return prompt
-
     async def run(self):
         await self.connect()
         self._bot.add_command(self.say_hello)
         await self._bot.wait_until_ready()
+
+    # Implement the missing abstract methods
+    def can_handle_on_instruction(self) -> bool:
+        return False
+
+    def on_instruction(self, instruction: str, *args, **kwargs) -> str:
+        pass
+
+    def can_handle_on_planning(self) -> bool:
+        return False
+
+    def on_planning(self, planning_input: str, *args, **kwargs) -> str:
+        pass
+
+    def can_handle_pre_instruction(self) -> bool:
+        return False
+
+    def pre_instruction(self, instruction: str, *args, **kwargs) -> str:
+        pass
+
+    def can_handle_post_instruction(self) -> bool:
+        return False
+
+    def post_instruction(self, instruction: str, output: str, *args, **kwargs) -> str:
+        pass
+
+    def can_handle_post_planning(self) -> bool:
+        return False
+
+    def post_planning(self, planning_input: str, output: str, *args, **kwargs) -> str:
+        pass
+
+    def can_handle_post_prompt(self) -> bool:
+        return False
+
+    def post_prompt(self, prompt_input: str, output: str, *args, **kwargs) -> str:
+        pass
+
+    def can_handle_post_command(self) -> bool:
+        return False
+
+    def post_command(
+        self, command_name: str, arguments: Dict[str, Any], output: str, *args, **kwargs
+    ) -> str:
+        pass
