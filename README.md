@@ -37,11 +37,5 @@ class HuggingFaceHostedInferenceModel(HuggingFaceModel):
 
 Create something like this 
 ```
-#!/bin/bash
-cd ../Auto-GPT-Plugins/
-rm ../Auto-GPT/plugins/Auto-GPT-Plugins.zip
-zip -r ../Auto-GPT/plugins/Auto-GPT-Plugins.zip .
-cd ../Auto-GPT
-
-python3 -m autogpt --debug
+cd ../Auto-GPT-Plugins && zip -ru ../Auto-GPT/plugins/Auto-GPT-Plugins.zip . ; ../Auto-GPT && python3 -m autogpt --debug
 ```
